@@ -5,7 +5,7 @@ Text generation from existing source text using weighted predictions.
 ## Installation
 
 ```bash
-go get github.com/vcokltfre/textgen@latest
+go install github.com/vcokltfre/textgen@latest
 ```
 
 ## Usage
