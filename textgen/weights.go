@@ -46,3 +46,12 @@ func (w *Weights) Predict(word string) string {
 
 	return ""
 }
+
+func (w *Weights) Train(text string) {
+	previous := ""
+
+	for _, word := range SplitText(text) {
+		w.Add(previous, word)
+		previous = word
+	}
+}

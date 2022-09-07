@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -49,17 +48,35 @@ func main() {
 						Aliases: []string{"s"},
 						Value:   "",
 					},
+					&cli.StringFlag{
+						Name:    "train",
+						Aliases: []string{"t"},
+						Value:   "",
+					},
 				},
 				Action: func(c *cli.Context) error {
 					length := c.Int("length")
 					weightsFile := c.String("weights")
 					start := c.String("start")
+					train := c.String("train")
 
-					fmt.Println(length)
+					var weights *textgen.Weights
 
-					weights, err := textgen.LoadWeights(weightsFile)
-					if err != nil {
-						return err
+					if train == "" {
+						w, err := textgen.LoadWeights(weightsFile)
+						if err != nil {
+							return err
+						}
+
+						weights = w
+					} else {
+						data, err := fileOrURI(train)
+						if err != nil {
+							return err
+						}
+
+						weights = textgen.NewWeights()
+						weights.Train(string(data))
 					}
 
 					for i := 0; i < length; i++ {
@@ -103,12 +120,7 @@ func main() {
 						weights = textgen.NewWeights()
 					}
 
-					previous := ""
-
-					for _, word := range textgen.SplitText(string(data)) {
-						weights.Add(previous, word)
-						previous = word
-					}
+					weights.Train(string(data))
 
 					return weights.Save(weightsFile)
 				},
